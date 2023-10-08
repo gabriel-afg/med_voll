@@ -21,13 +21,13 @@ public class MedicoController {
     private MedicoRepository repository;
     @PostMapping
     @Transactional
-    public Medico cadastrar(@RequestBody @Valid DadosCadastroMedico dados){
-        return repository.save(new Medico(dados));
+    public void cadastrar(@RequestBody @Valid DadosCadastroMedico dados){
+        repository.save(new Medico(dados));
     }
 
     @GetMapping
     public ResponseEntity<Page<DadosListagemMedico>> listar(@PageableDefault(size = 10, page = 0, sort = {"nome"}) Pageable pageable){
-        Page<DadosListagemMedico> obj = repository.findAll(pageable).map(DadosListagemMedico::new);
+        Page<DadosListagemMedico> obj = repository.findAllByAtivoTrue(pageable).map(DadosListagemMedico::new);
         return ResponseEntity.ok(obj);
     }
 
@@ -36,5 +36,21 @@ public class MedicoController {
     public void atualizar(@RequestBody @Valid DadosAtualizarMedico dados){
         var obj = repository.getReferenceById(dados.id());
         obj.atualizarInformacoes(dados);
+    }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        var obj = repository.getReferenceById(id);
+        obj.inativar();
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    @Transactional
+    public ResponseEntity<Void> ativar(@PathVariable Long id){
+        var obj = repository.getReferenceById(id);
+        obj.ativar();
+        return ResponseEntity.noContent().build();
     }
 }
