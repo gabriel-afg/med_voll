@@ -23,7 +23,7 @@ public class MedicoController {
     private MedicoRepository repository;
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder){
+    public ResponseEntity<DadosDetalhamentoMedico> cadastrar(@RequestBody @Valid DadosCadastroMedico dados, UriComponentsBuilder uriBuilder){
         var medico = new Medico(dados);
         repository.save(medico);
 
@@ -39,14 +39,14 @@ public class MedicoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity listarPorId(@PathVariable Long id){
+    public ResponseEntity<DadosDetalhamentoMedico> listarPorId(@PathVariable Long id){
         var obj = repository.getReferenceById(id);
         return ResponseEntity.ok(new DadosDetalhamentoMedico(obj));
     }
 
     @PutMapping()
     @Transactional
-    public ResponseEntity atualizar(@RequestBody @Valid DadosAtualizarMedico dados){
+    public ResponseEntity<DadosDetalhamentoMedico> atualizar(@RequestBody @Valid DadosAtualizarMedico dados){
         var obj = repository.getReferenceById(dados.id());
         obj.atualizarInformacoes(dados);
 
