@@ -1,6 +1,7 @@
 package md.voll.api.service;
 
 import md.voll.api.dtos.DadosAgendamentoConsulta;
+import md.voll.api.dtos.DadosDetalhamentoConsulta;
 import md.voll.api.infra.exceptions.ValidacaoException;
 import md.voll.api.models.Consulta;
 import md.voll.api.models.Medico;
@@ -27,7 +28,7 @@ public class AgendaDeConsultas {
     @Autowired
     private List<ValidadorAngedamentoDeConsulta> validadores;
 
-    public void agendar(DadosAgendamentoConsulta dados){
+    public DadosDetalhamentoConsulta agendar(DadosAgendamentoConsulta dados){
 
         if (!pacienteRepository.existsById(dados.idPaciente())){
             throw new ValidacaoException("id do paciente informado não existe");
@@ -41,9 +42,16 @@ public class AgendaDeConsultas {
 
         var paciente = pacienteRepository.findById(dados.idPaciente()).get();
         var medico = escolherMedico(dados);
+
+        if(medico == null) {
+            throw new ValidacaoException("Nenhum médico disponivel nesse dia e com essa especialidade");
+        }
+
         var consulta = new Consulta(null, medico, paciente, dados.data());
 
         consultaRepository.save(consulta);
+
+        return new DadosDetalhamentoConsulta(consulta);
     }
 
     private Medico escolherMedico(DadosAgendamentoConsulta dados) {

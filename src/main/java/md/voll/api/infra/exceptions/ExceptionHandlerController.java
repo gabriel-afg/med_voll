@@ -20,6 +20,11 @@ public class ExceptionHandlerController {
         return ResponseEntity.badRequest().body(errors.stream().map(DadosErroValidacao::new).toList());
     }
 
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity tratarErroValidacao(ValidacaoException e){
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
+
     private record DadosErroValidacao(String campo, String mensagem){
         public DadosErroValidacao(FieldError e){
             this(e.getField(), e.getDefaultMessage());
