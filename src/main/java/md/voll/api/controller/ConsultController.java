@@ -2,7 +2,7 @@ package md.voll.api.controller;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import md.voll.api.AgendaDeConsultas;
+import md.voll.api.service.AgendaDeConsultas;
 import md.voll.api.dtos.DadosAgendamentoConsulta;
 import md.voll.api.dtos.DadosDetalhamentoConsulta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ public class ConsultController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity agendar(@RequestBody @Valid DadosAgendamentoConsulta dados){
+    public ResponseEntity<DadosDetalhamentoConsulta> agendar(@RequestBody @Valid DadosAgendamentoConsulta dados){
         agendaDeConsultas.agendar(dados);
         return ResponseEntity.ok(new DadosDetalhamentoConsulta(null, null, null, null));
     }
