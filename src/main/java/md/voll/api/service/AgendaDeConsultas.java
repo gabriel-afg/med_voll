@@ -1,6 +1,7 @@
 package md.voll.api.service;
 
 import md.voll.api.dtos.DadosAgendamentoConsulta;
+import md.voll.api.dtos.DadosCancelamentoConsulta;
 import md.voll.api.dtos.DadosDetalhamentoConsulta;
 import md.voll.api.infra.exceptions.ValidacaoException;
 import md.voll.api.models.Consulta;
@@ -12,6 +13,7 @@ import md.voll.api.validations.ValidadorAngedamentoDeConsulta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -47,7 +49,7 @@ public class AgendaDeConsultas {
             throw new ValidacaoException("Nenhum médico disponivel nesse dia e com essa especialidade");
         }
 
-        var consulta = new Consulta(null, medico, paciente, dados.data());
+        var consulta = new Consulta(null, medico, paciente, dados.data(), null, null);
 
         consultaRepository.save(consulta);
 
@@ -66,4 +68,21 @@ public class AgendaDeConsultas {
         return medicoRepository.escolherMedicoAleatorioLivreNaData(dados.especialidade(), dados.data());
     }
 
+    public Consulta cancelar(DadosCancelamentoConsulta dados){
+        if (!consultaRepository.existsById(dados.idConsulta())){
+            throw new ValidacaoException("Não existe nenhuma consulta com esse id");
+        }
+
+        Consulta consulta = consultaRepository.getReferenceById(dados.idConsulta());
+        LocalDateTime dataCancelamento = LocalDateTime.now();
+
+        if(dataCancelamento.plusDays(1).isAfter(consulta.getData())){
+            throw new ValidacaoException("A consulta so pode ser cancelada no minimo 24 horas antes");
+        }
+
+        consulta.setCancelada(true);
+        consulta.setMotivoCancelamento(dados.motivo());
+
+        return consulta;
+    }
 }
